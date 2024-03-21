@@ -10,7 +10,7 @@ import { ref } from 'vue';
 dayjs.extend(relativeTime);
 
 // defineProps(['chirp']);
-const props = defineProps(['chirps']);
+const props = defineProps(['chirp']);
 
 const form = useForm({
     message: props.chirp.message,
