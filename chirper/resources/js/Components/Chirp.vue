@@ -1,10 +1,23 @@
 <script setup>
+import Dropdown from '@/Components/Dropdown.vue';
+import InputError from '@/Components/InputError.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
- 
+import { useForm } from '@inertiajs/vue3';
+import { ref } from 'vue'; 
+
 dayjs.extend(relativeTime);
 
-defineProps(['chirp']);
+// defineProps(['chirp']);
+const props = defineProps(['chirps']);
+
+const form = useForm({
+    message: props.chirp.message,
+});
+
+const editing = ref(false);
+
 </script>
  
 <template>
@@ -18,9 +31,21 @@ defineProps(['chirp']);
                     <span class="text-gray-800">{{ chirp.user.name }}</span>
                     <!-- <small class="ml-2 text-sm text-gray-600">{{ new Date(chirp.created_at).toLocaleString() }}</small> -->
                     <small class="ml-2 text-sm text-gray-600">{{ dayjs(chirp.created_at).fromNow() }}</small>
+                    <small v-if="chirp.created_at !== chirp.updated_at" class="text-sm text-gray-600"> &middot; edited</small>
                 </div>
             </div>
-            <p class="mt-4 text-lg text-gray-900">{{ chirp.message }}</p>
+            <!-- <p class="mt-4 text-lg text-gray-900">{{ chirp.message }}</p> -->
+
+            <form v-if="editing" @submit.prevent="form.put(route('chirps.update', chirp.id), { onSuccess: () => editing = false })">
+                <textarea v-model="form.message" class="mt-4 w-full text-gray-900 border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm"></textarea>
+                <InputError :message="form.errors.message" class="mt-2" />
+                <div class="space-x-2">
+                    <PrimaryButton class="mt-4">Save</PrimaryButton>
+                    <button class="mt-4" @click="editing = false; form.reset(); form.clearErrors()">Cancel</button>
+                </div>
+            </form>
+            <p v-else class="mt-4 text-lg text-gray-900">{{ chirp.message }}</p>
+            
         </div>
     </div>
 </template>
